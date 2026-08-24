@@ -1,9 +1,7 @@
 # q2-eco-processes: Official QIIME 2 Plugin for Microbial Ecological Assembly Processes
 
-[![PyPI version](https://img.shields.io/pypi/v/q2-eco-processes.svg)](https://pypi.org/project/q2-eco-processes/)
 [![Bioconda](https://img.shields.io/badge/bioconda-q2--eco--processes-blue.svg)](https://bioconda.github.io/recipes/q2-eco-processes/README.html)
 [![QIIME 2 Library](https://img.shields.io/badge/QIIME%202%20Library-eco--processes-purple.svg)](https://library.qiime2.org)
-[![Build Status](https://github.com/LaBiOmics/q2-eco-processes/actions/workflows/ci.yml/badge.svg)](https://github.com/LaBiOmics/q2-eco-processes/actions)
 [![License: BSD-3-Clause](https://img.shields.io/badge/License-BSD--3--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 
 > **Quantify Selection, Dispersal Limitation, and Drift in Microbial Communities**  
