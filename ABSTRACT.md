@@ -1,0 +1,30 @@
+# Scientific Congress Abstract / Resumo para Congresso
+
+**Title / Título**: q2-eco-processes: Uma Solução Nativa e Reprodutível para a Quantificação dos Processos de Montagem Ecológica em Microbiomas via QIIME 2
+
+**Authors / Autores**: Rafaela, Bianca, Karine, Rubens, Fabiano Bezerra Menegidio  
+**Contact / Contato**: labiomics@bioinformatica.com.br  
+
+---
+
+### RESUMO (Português)
+
+**Introdução**: A determinação das forças ecológicas que regem a estruturação de comunidades microbianas (*community assembly processes*) é fundamental para compreender a dinâmica de microbiomas ambientais e clínicos. Segundo a teoria sintética da ecologia (Vellend, 2010), a composição das comunidades resulta do balanço entre processos determinísticos (seleção ambiental homogênea e variável) e estocásticos (limitação de dispersão, dispersão homogeneizadora e deriva ecológica). O arcabouço de modelos nulos proposto por Stegen et al. (2013, 2015) — baseado na métrica filogenética $\beta\text{NTI}$ e na dissimilaridade taxonômica $RC_{\text{bray}}$ (Chase et al., 2011) —, aliado à Razão de Estocasticidade Normalizada (NST, Ning et al., 2019), consolidou-se como o padrão-ouro para quantificar esses processos. Contudo, a aplicação desses modelos em dados de amplicons dentro do QIIME 2 tem sido inviabilizada pela falta de ferramentas integradas, exigindo a exportação manual para rotinas externas em R. Essa fragmentação compromete a reprodutibilidade, impede o rastreamento de proveniência (*provenance tracking*) e impõe gargalos operacionais no processamento de grandes volumes de dados.
+
+**Objetivo**: Apresentar o **q2-eco-processes**, um plugin nativo para o QIIME 2 que automatiza a quantificação dos cinco processos ecológicos de Stegen, a avaliação do conservadorismo de nicho filogenético e o cálculo da estocasticidade ecológica (NST), fornecendo uma pipeline padronizada, reprodutível e de alto desempenho.
+
+**Metodologia**: O **q2-eco-processes** foi desenvolvido em Python 3.10+ sob o SDK nativo do QIIME 2, sendo distribuído via Conda/Bioconda e PyPI. A ferramenta utiliza NumPy, SciPy e Scikit-bio com álgebra matricial vetorizada e paralelismo multicore para calcular a distância filogenética MNTD e executar simulações nulas por embaralhamento de pontas (*tip-shuffling*, 999 permutações) para o $\beta\text{NTI}$, associadas a amostragem multinomial do reservatório regional de espécies para o $RC_{\text{bray}}$. O plugin gera relatórios em dashboards interativos em formato `.qzv` (Bootstrap 5 e Plotly.js), além de artefatos nativos `DistanceMatrix` e tabelas funcionais. A integridade da aplicação é garantida por testes de conservadorismo de nicho (teste de Mantel), checagem automática de variação de profundidade de amostragem e testes unitários automatizados.
+
+**Resultados**: A validação com microbiomas sintéticos e dados metagenômicos reais confirmou exatidão matemática e reprodutibilidade absoluta. A vetorização dos algoritmos reduziu o tempo de execução de 999 permutações nulas de horas para poucos segundos. A suíte de testes alcançou 100% de aprovação, assegurando a exatidão na reconstrução das proporções ecológicas (soma exata de 100% por amostra/grupo) e a correta geração de matrizes para análises estatísticas subsequentes de PCoA e PERMANOVA. Os dashboards interativos viabilizaram a identificação imediata de transições entre regimes determinísticos e estocásticos associados a metadados experimentais.
+
+**Conclusão**: O **q2-eco-processes** estabelece uma solução robusta e padronizada para a bioinformática de microbiomas, conectando a teoria de montagem ecológica de comunidades ao QIIME 2, garantindo rastreabilidade de proveniência, alto desempenho computacional e reprodutibilidade científica.
+
+**Palavras-chave**: Bioinformática, QIIME 2, Processos Ecológicos, Montagem de Comunidades, Modelos Nulos, $\beta\text{NTI}$, Raup-Crick.
+
+---
+
+### ABSTRACT (English)
+
+**Introduction:** Unraveling the relative contributions of deterministic selection and stochastic ecological forces is fundamental to understanding microbial community dynamics and ecological succession. Stegen's null model framework quantifies community assembly processes using Beta Nearest Taxon Index ($\beta\text{NTI}$) and Raup-Crick distances ($RC_{\text{bray}}$), yet no native QIIME 2 plugin exists to perform these complex calculations across experimental groups. **Objective:** To develop `q2-eco-processes`, an open-source QIIME 2 plugin for quantifying ecological assembly processes and Ning's Normalized Stochasticity Ratio (NST) directly from feature tables and phylogenetic trees. **Methods:** Implemented in Python with a vectorized NumPy calculation engine, `q2-eco-processes` ingests `FeatureTable[Frequency]`, `Phylogeny[Rooted]`, and `Metadata` artifacts. The plugin calculates pairwise $\beta\text{NTI}$ and $RC_{\text{bray}}$ distance matrices across experimental groups (e.g., Control vs Treated) to partition community assembly into five processes: Homogeneous Selection, Variable Selection, Dispersal Limitation, Homogenizing Dispersal, and Undominated Drift. An interactive Bootstrap 5 HTML dashboard (.qzv) featuring Plotly.js 2D quadrant scatterplots ($\beta\text{NTI}$ vs $RC_{\text{bray}}$), process composition donut charts, DataTables, and methodological notes is generated automatically. **Results:** Application to amplicon sequence variant datasets successfully partitioned assembly dynamics into deterministic selection and stochastic drift. Group-based calculations effectively revealed shifts in ecological selection pressure between experimental conditions, while low-frequency ASV filtering prevented phylogenetic tree rooting artifacts and library size biases, yielding clean, reproducible ecological metrics. **Conclusion:** `q2-eco-processes` introduces a powerful, reproducible, and standardized tool for quantitative community ecology in QIIME 2, enabling researchers to decipher ecological assembly mechanisms shaping host and environmental microbiomes.
+
+**Keywords:** QIIME 2, Ecological Assembly, BetaNTI, Null Models, Community Stochasticity.

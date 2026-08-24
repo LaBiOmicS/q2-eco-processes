@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "q2-eco-processes"
+version = "0.1.0"
+description = "Official QIIME 2 plugin for microbial ecological assembly processes quantification."
+readme = "README.md"
+authors = [
+    { name = "LaBiOmics / UMC", email = "bioinformatics@labiomics.org" }
+]
+license = { text = "BSD-3-Clause" }
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: BSD License",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: MacOS",
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering :: Bio-Informatics"
+]
+dependencies = [
+    "pandas>=1.3.0",
+    "biom-format>=2.1.10",
+    "scikit-bio>=0.5.8"
+]
+
+[project.urls]
+Homepage = "https://github.com/LaBiOmics/q2-eco-processes"
+Documentation = "https://github.com/LaBiOmics/q2-eco-processes/blob/main/README.md"
+Repository = "https://github.com/LaBiOmics/q2-eco-processes.git"
+Issues = "https://github.com/LaBiOmics/q2-eco-processes/issues"
+
+[project.entry-points."qiime2.plugins"]
+q2-eco-processes = "q2_eco_processes.plugin_setup:plugin"
+
+[project.scripts]
+q2-eco-processes-check = "q2_eco_processes._check:check_environment"

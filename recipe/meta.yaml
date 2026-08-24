@@ -1,0 +1,43 @@
+{% set name = "q2-eco-processes" %}
+{% set version = "0.1.0" %}
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  path: ..
+
+build:
+  noarch: python
+  number: 0
+  script: {{ PYTHON }} -m pip install . --no-deps -vv
+
+requirements:
+  host:
+    - python >=3.9
+    - pip
+    - setuptools
+  run:
+    - python >=3.9
+    - qiime2 >=2026.1
+    - q2-types >=2026.1
+    - pandas
+    - biom-format
+    - scikit-bio
+
+test:
+  commands:
+    - q2-eco-processes-check
+    - qiime eco-processes --help
+
+about:
+  home: https://github.com/LaBiOmics/q2-eco-processes
+  license: BSD-3-Clause
+  license_family: BSD
+  summary: 'Official QIIME 2 plugin for microbial ecological assembly processes quantification.'
+  dev_url: https://github.com/LaBiOmics/q2-eco-processes
+
+extra:
+  recipe-maintainers:
+    - LaBiOmics
