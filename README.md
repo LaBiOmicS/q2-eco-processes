@@ -1,8 +1,7 @@
 # q2-eco-processes: Official QIIME 2 Plugin for Microbial Ecological Assembly Processes
 
-[![Bioconda](https://img.shields.io/badge/bioconda-q2--eco--processes-blue.svg)](https://bioconda.github.io/recipes/q2-eco-processes/README.html)
-[![QIIME 2 Library](https://img.shields.io/badge/QIIME%202%20Library-eco--processes-purple.svg)](https://library.qiime2.org)
-[![License: BSD-3-Clause](https://img.shields.io/badge/License-BSD--3--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Build Status](https://github.com/LaBiOmicS/q2-eco-processes/actions/workflows/ci.yml/badge.svg)](https://github.com/LaBiOmicS/q2-eco-processes/actions)
 
 > **Quantify Selection, Dispersal Limitation, and Drift in Microbial Communities**  
 > Developed by **LaBiOmics / UMC (Bioinformatics & Microbiome Unit)**
@@ -21,6 +20,50 @@
 
 ---
 
+## 💻 Installation
+
+Currently, `q2-eco-processes` is installed directly from the GitHub repository within an active QIIME 2 Conda environment. *(Bioconda and PyPI packages coming soon).*
+
+### Step 1: Activate your QIIME 2 Environment
+Make sure your QIIME 2 Conda environment is active (e.g. `qiime2-amplicon-2024.10` or `qiime2-2023.9`):
+
+```bash
+conda activate qiime2-amplicon-2024.10
+```
+
+### Step 2: Install from GitHub
+
+#### Option A: Direct Installation via pip (Recommended)
+```bash
+pip install git+https://github.com/LaBiOmicS/q2-eco-processes.git
+```
+
+#### Option B: Installation from Cloned Repository (Development Mode)
+```bash
+git clone https://github.com/LaBiOmicS/q2-eco-processes.git
+cd q2-eco-processes
+pip install -e .
+```
+
+### Step 3: Refresh QIIME 2 Cache & Verify Installation
+After installing, refresh the QIIME 2 CLI plugin cache:
+
+```bash
+qiime dev refresh-cache
+```
+
+Verify that the environment and plugin are active and ready:
+
+```bash
+# Run environment self-diagnostic check
+q2-eco-processes-check
+
+# Check QIIME 2 plugin help menu
+qiime eco-processes --help
+```
+
+---
+
 ## 📋 Best Practices & Methodological Recommendations
 
 To ensure maximum statistical validity and avoid sampling or tree-rooting biases when using `q2-eco-processes`:
@@ -36,23 +79,7 @@ To ensure maximum statistical validity and avoid sampling or tree-rooting biases
 
 ---
 
-## 💻 Installation
-
-### Option 1: Via Conda / Bioconda (Recommended)
-
-```bash
-conda install -c bioconda -c conda-forge q2-eco-processes
-```
-
-### Option 2: Via PyPI
-
-```bash
-pip install q2-eco-processes
-```
-
----
-
-## 🚀 QIIME 2 CLI Usage Example
+## 🚀 QIIME 2 CLI Usage Examples
 
 ### 1. Main Assembly Quantification & Dashboard
 ```bash
