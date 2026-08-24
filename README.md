@@ -24,14 +24,7 @@
 
 Currently, `q2-eco-processes` is installed directly from the GitHub repository within an active QIIME 2 Conda environment. *(Bioconda and PyPI packages coming soon).*
 
-### Step 1: Activate your QIIME 2 Environment
-Make sure your QIIME 2 Conda environment is active (e.g. `qiime2-amplicon-2024.10` or `qiime2-2023.9`):
-
-```bash
-conda activate qiime2-amplicon-2024.10
-```
-
-### Step 2: Install from GitHub
+### Step 1: Install from GitHub
 
 #### Option A: Direct Installation via pip (Recommended)
 ```bash
@@ -45,7 +38,7 @@ cd q2-eco-processes
 pip install -e .
 ```
 
-### Step 3: Refresh QIIME 2 Cache & Verify Installation
+### Step 2: Refresh QIIME 2 Cache & Verify Installation
 After installing, refresh the QIIME 2 CLI plugin cache:
 
 ```bash
