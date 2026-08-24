@@ -3,7 +3,10 @@ import numpy as np
 import pandas as pd
 import biom
 import skbio
-import qiime2
+try:
+    import qiime2
+except ImportError:
+    qiime2 = None
 from scipy.spatial.distance import pdist, squareform
 from concurrent.futures import ProcessPoolExecutor
 
@@ -200,7 +203,10 @@ def calculate_processes(
         "Mean_RCbray"
     ]
 
-    meta_df = metadata.to_dataframe() if metadata is not None else None
+    if metadata is not None:
+        meta_df = metadata.to_dataframe() if hasattr(metadata, 'to_dataframe') else metadata
+    else:
+        meta_df = None
 
     # Group-based or Sample-based calculation
     if meta_df is not None and column is not None and column in meta_df.columns:

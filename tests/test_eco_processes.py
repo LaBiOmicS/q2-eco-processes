@@ -5,8 +5,20 @@ import numpy as np
 import pandas as pd
 import biom
 import skbio
-import qiime2
 from io import StringIO
+
+try:
+    import qiime2
+except ImportError:
+    class DummyMetadata:
+        def __init__(self, df):
+            self._df = df
+        def to_dataframe(self):
+            return self._df
+    class DummyQIIME2:
+        Metadata = DummyMetadata
+    qiime2 = DummyQIIME2()
+
 from q2_eco_processes._processes import calculate_processes, calculate_matrices
 from q2_eco_processes._visualizer import summarize_processes
 from q2_eco_processes._signal import check_phylogenetic_signal

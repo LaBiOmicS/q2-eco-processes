@@ -2,7 +2,10 @@ import os
 import json
 import pandas as pd
 import biom
-import qiime2
+try:
+    import qiime2
+except ImportError:
+    qiime2 = None
 
 def summarize_processes(
     output_dir: str,

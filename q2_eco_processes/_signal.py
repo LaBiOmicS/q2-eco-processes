@@ -4,7 +4,10 @@ import numpy as np
 import pandas as pd
 import biom
 import skbio
-import qiime2
+try:
+    import qiime2
+except ImportError:
+    qiime2 = None
 from scipy.spatial.distance import pdist, squareform
 from skbio.stats.distance import mantel, DistanceMatrix
 
@@ -34,7 +37,7 @@ def check_phylogenetic_signal(
     )
 
     # Filter metadata
-    meta_df = metadata.to_dataframe()
+    meta_df = metadata.to_dataframe() if hasattr(metadata, 'to_dataframe') else metadata
     if column not in meta_df.columns:
         raise ValueError(f"Column '{column}' not found in provided metadata.")
 
