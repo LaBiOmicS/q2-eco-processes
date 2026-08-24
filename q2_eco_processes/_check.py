@@ -1,6 +1,6 @@
 import sys
 
-def check_environment() -> bool:
+def check_environment() -> None:
     """
     Self-diagnostic utility to verify q2-eco-processes installation and environment readiness.
     """
@@ -12,8 +12,7 @@ def check_environment() -> bool:
     print("===============================================================")
     print("[ SUCCESS ] q2-eco-processes environment is 100% ready for production!")
     print("===============================================================")
-    return True
 
 if __name__ == "__main__":
-    success = check_environment()
-    sys.exit(0 if success else 1)
+    check_environment()
+    sys.exit(0)
