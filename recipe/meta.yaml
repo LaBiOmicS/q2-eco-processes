@@ -33,8 +33,8 @@ test:
 
 about:
   home: https://github.com/LaBiOmics/q2-eco-processes
-  license: BSD-3-Clause
-  license_family: BSD
+  license: MIT
+  license_family: MIT
   summary: 'Official QIIME 2 plugin for microbial ecological assembly processes quantification.'
   dev_url: https://github.com/LaBiOmics/q2-eco-processes
 

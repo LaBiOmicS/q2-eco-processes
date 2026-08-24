@@ -9,7 +9,7 @@ setup(
     description="Official QIIME 2 plugin for microbial ecological assembly processes quantification.",
     long_description=open("README.md").read() if open("README.md") else "",
     long_description_content_type="text/markdown",
-    license="BSD-3-Clause",
+    license="MIT",
     url="https://github.com/LaBiOmics/q2-eco-processes",
     entry_points={
         'qiime2.plugins': ['q2-eco-processes=q2_eco_processes.plugin_setup:plugin'],
