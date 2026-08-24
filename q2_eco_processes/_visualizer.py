@@ -1,11 +1,15 @@
+from __future__ import annotations
 import os
 import json
 import pandas as pd
 import biom
+
 try:
     import qiime2
 except ImportError:
-    qiime2 = None
+    class DummyQIIME2:
+        Metadata = object
+    qiime2 = DummyQIIME2()
 
 def summarize_processes(
     output_dir: str,
@@ -13,10 +17,8 @@ def summarize_processes(
     metadata: qiime2.Metadata = None
 ) -> None:
     """
-    QIIME 2 Visualizer Action: Generates interactive Bootstrap 5 HTML summary dashboard (.qzv) for ecological assembly processes,
-    featuring Plotly.js 2D quadrant scatterplots (BetaNTI vs RCbray), donut charts, and DataTables.
+    QIIME 2 Visualizer Action: Generates interactive Bootstrap 5 HTML summary dashboard (.qzv) for ecological assembly processes.
     """
-    # Convert biom.Table to pandas DataFrame (samples x processes)
     df_proc = pd.DataFrame(
         table.matrix_data.toarray().T,
         index=table.ids(axis='sample'),
@@ -30,16 +32,13 @@ def summarize_processes(
 
     total_samples = len(df_proc)
 
-    # Coordinates for Plotly 2D Scatterplot
     x_coords = df_proc["Mean_RCbray"].round(3).tolist() if "Mean_RCbray" in df_proc.columns else [0.0] * total_samples
     y_coords = df_proc["Mean_BetaNTI"].round(3).tolist() if "Mean_BetaNTI" in df_proc.columns else [0.0] * total_samples
     sample_labels = df_proc.index.tolist()
 
-    # Export TSV table inside visualization bundle
     tsv_path = os.path.join(output_dir, "ecological_assembly_processes.tsv")
     df_proc.to_csv(tsv_path, sep="\t")
 
-    # Generate HTML rows
     proc_rows_html = ""
     for proc, mean_val in proc_totals.items():
         val_fmt = round(mean_val, 2)
@@ -57,7 +56,6 @@ def summarize_processes(
         </tr>
         """
 
-    # HTML Dashboard Template with Plotly.js
     index_html = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -154,7 +152,6 @@ def summarize_processes(
 </div>
 
 <script>
-    // 1. Donut Chart
     const procLabels = {list(proc_totals.index)};
     const procValues = {list(proc_totals.values)};
     Plotly.newPlot('donutPlot', [{{
@@ -165,7 +162,6 @@ def summarize_processes(
         marker: {{ colors: ['#2b5876', '#4e4376', '#f39c12', '#e74c3c', '#95a5a6'] }}
     }}], {{ margin: {{ t: 10, b: 10, l: 10, r: 10 }} }});
 
-    // 2. 2D Scatter Plot with Dynamic Real Data
     const scatterTrace = {{
         x: {json.dumps(x_coords)},
         y: {json.dumps(y_coords)},

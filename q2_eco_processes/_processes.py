@@ -1,12 +1,17 @@
+from __future__ import annotations
 import os
 import numpy as np
 import pandas as pd
 import biom
 import skbio
+
 try:
     import qiime2
 except ImportError:
-    qiime2 = None
+    class DummyQIIME2:
+        Metadata = object
+    qiime2 = DummyQIIME2()
+
 from scipy.spatial.distance import pdist, squareform
 from concurrent.futures import ProcessPoolExecutor
 
@@ -48,28 +53,6 @@ def calculate_processes(
     QIIME 2 Method Action: Quantifies the 5 Stegen ecological assembly processes
     (Homogeneous Selection, Variable Selection, Dispersal Limitation, Homogenizing Dispersal, Undominated Drift)
     and Ning's Normalized Stochasticity Ratio (NST) using phylogenetic null models across experimental groups.
-
-    Parameters
-    ----------
-    table : biom.Table
-        ASV Feature Table (FeatureTable[Frequency]).
-    tree : skbio.TreeNode
-        Phylogeny[Rooted] tree for BetaNTI calculation.
-    metadata : qiime2.Metadata, optional
-        Sample metadata for experimental group comparisons (Control vs Treated).
-    column : str, optional
-        Metadata column name defining experimental groups.
-    permutations : int, optional
-        Number of null model randomization permutations (default: 999).
-    min_frequency : int, optional
-        Filter out low-frequency ASVs with total count below threshold before null model simulation (default: 0).
-    n_jobs : int, optional
-        Number of CPU threads to use (default: 1).
-
-    Returns
-    -------
-    biom.Table
-        FeatureTable[Frequency] containing ecological assembly process percentages per sample or group.
     """
     if table.is_empty() or table.matrix_data.sum() == 0:
         raise ValueError("Provided FeatureTable[Frequency] is empty.")
@@ -77,14 +60,12 @@ def calculate_processes(
     if tree is None:
         raise ValueError("A rooted phylogenetic tree (Phylogeny[Rooted]) is required for BetaNTI null model calculation.")
 
-    # Convert biom.Table to pandas DataFrame (samples x features)
     table_df = pd.DataFrame(
         table.matrix_data.toarray().T,
         index=table.ids(axis='sample'),
         columns=table.ids(axis='observation')
     )
 
-    # Library size variation check to advise users on rarefaction
     sample_depths = table_df.sum(axis=1)
     if len(sample_depths) > 0 and sample_depths.min() > 0:
         depth_ratio = sample_depths.max() / float(sample_depths.min())
@@ -97,12 +78,10 @@ def calculate_processes(
                 UserWarning
             )
 
-    # Optional low-frequency ASV filtering
     if min_frequency > 0:
         sums = table_df.sum(axis=0)
         table_df = table_df.loc[:, sums >= min_frequency]
 
-    # Align table ASVs with phylogenetic tree tips
     tree_tips = set(t.name for t in tree.tips())
     common_asvs = [a for a in table_df.columns if a in tree_tips]
 
@@ -117,12 +96,9 @@ def calculate_processes(
     if n_samples < 2:
         raise ValueError("At least 2 samples are required to calculate ecological assembly processes.")
 
-    # Extract phylogenetic cophenetic distance matrix from tree
     dm = tree.tip_tip_distances()
     dm_df = pd.DataFrame(dm.data, index=dm.ids, columns=dm.ids)
     D_matrix = dm_df.loc[common_asvs, common_asvs].values.astype(float)
-
-    # Relative abundance matrix P_val
     P_val = table_df.div(table_df.sum(axis=1), axis=0).fillna(0.0).values.astype(float)
 
     # 1. Observed BetaMNTD
@@ -135,7 +111,6 @@ def calculate_processes(
     mntd_obs_dir = P_val @ M_min_obs
     beta_mntd_obs = 0.5 * (mntd_obs_dir + mntd_obs_dir.T)
 
-    # Parallel null model permutations for BetaNTI
     workers = min(n_jobs if n_jobs > 0 else os.cpu_count(), os.cpu_count() or 1)
     bnti_args = [
         (s, n_asvs, n_samples, P_val, D_matrix)
@@ -148,7 +123,7 @@ def calculate_processes(
     else:
         null_mntds = [_run_bnti_perm(arg) for arg in bnti_args]
 
-    null_mntds_arr = np.array(null_mntds) # (permutations, n_samples, n_samples)
+    null_mntds_arr = np.array(null_mntds)
     mean_null_mntd = np.mean(null_mntds_arr, axis=0)
     std_null_mntd = np.std(null_mntds_arr, axis=0)
     std_null_mntd[std_null_mntd == 0] = 1.0
@@ -179,8 +154,7 @@ def calculate_processes(
     else:
         null_bcs = [_run_rc_perm(arg) for arg in rc_args]
 
-    null_bcs_arr = np.array(null_bcs) # (permutations, n_samples, n_samples)
-
+    null_bcs_arr = np.array(null_bcs)
     rc_bray = np.zeros((n_samples, n_samples))
     for i in range(n_samples):
         for j in range(n_samples):
@@ -208,7 +182,6 @@ def calculate_processes(
     else:
         meta_df = None
 
-    # Group-based or Sample-based calculation
     if meta_df is not None and column is not None and column in meta_df.columns:
         valid_meta = meta_df.loc[meta_df.index.intersection(sample_ids)]
         groups = list(valid_meta[column].unique())
@@ -294,7 +267,6 @@ def calculate_processes(
         process_pct["Mean_BetaNTI"] = sample_counts["Mean_BetaNTI"]
         process_pct["Mean_RCbray"] = sample_counts["Mean_RCbray"]
 
-    # Convert pandas DataFrame back to biom.Table
     process_biom = biom.Table(
         process_pct.values.T,
         observation_ids=list(process_pct.columns),
@@ -310,8 +282,7 @@ def calculate_matrices(
     n_jobs: int = 1
 ) -> (skbio.DistanceMatrix, skbio.DistanceMatrix):
     """
-    QIIME 2 Method Action: Calculates pairwise BetaNTI and Raup-Crick (RCbray) score matrices
-    and returns them as QIIME 2 DistanceMatrix artifacts for downstream PCoA and PERMANOVA.
+    QIIME 2 Method Action: Calculates pairwise BetaNTI and Raup-Crick (RCbray) score matrices.
     """
     if table.is_empty() or table.matrix_data.sum() == 0:
         raise ValueError("Provided FeatureTable[Frequency] is empty.")
@@ -417,4 +388,3 @@ def calculate_matrices(
     rc_bray_dm = skbio.DistanceMatrix(rc_bray, ids=sample_ids)
 
     return beta_nti_dm, rc_bray_dm
-

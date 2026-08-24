@@ -1,13 +1,18 @@
+from __future__ import annotations
 import os
 import json
 import numpy as np
 import pandas as pd
 import biom
 import skbio
+
 try:
     import qiime2
 except ImportError:
-    qiime2 = None
+    class DummyQIIME2:
+        Metadata = object
+    qiime2 = DummyQIIME2()
+
 from scipy.spatial.distance import pdist, squareform
 from skbio.stats.distance import mantel, DistanceMatrix
 
@@ -20,8 +25,7 @@ def check_phylogenetic_signal(
     permutations: int = 999
 ) -> None:
     """
-    QIIME 2 Visualizer Action: Evaluates the presence of phylogenetic signal by testing
-    the correlation between environmental niche distance and phylogenetic distance using Mantel tests.
+    QIIME 2 Visualizer Action: Evaluates the presence of phylogenetic signal.
     """
     if table.is_empty():
         raise ValueError("Provided FeatureTable[Frequency] is empty.")
@@ -29,19 +33,16 @@ def check_phylogenetic_signal(
     if tree is None:
         raise ValueError("A rooted phylogenetic tree (Phylogeny[Rooted]) is required for phylogenetic signal analysis.")
 
-    # Convert biom table to DataFrame
     table_df = pd.DataFrame(
         table.matrix_data.toarray().T,
         index=table.ids(axis='sample'),
         columns=table.ids(axis='observation')
     )
 
-    # Filter metadata
     meta_df = metadata.to_dataframe() if hasattr(metadata, 'to_dataframe') else metadata
     if column not in meta_df.columns:
         raise ValueError(f"Column '{column}' not found in provided metadata.")
 
-    # Ensure column is numeric
     try:
         env_series = pd.to_numeric(meta_df[column], errors='coerce').dropna()
     except Exception as e:
@@ -54,7 +55,6 @@ def check_phylogenetic_signal(
     table_df = table_df.loc[common_samples]
     env_series = env_series.loc[common_samples]
 
-    # Align ASVs with tree tips
     tree_tips = set(t.name for t in tree.tips())
     common_asvs = [a for a in table_df.columns if a in tree_tips]
     if len(common_asvs) < 3:
@@ -62,27 +62,21 @@ def check_phylogenetic_signal(
 
     table_df = table_df[common_asvs]
 
-    # Calculate ASV environmental niche optima (abundance-weighted mean of environmental variable)
     rel_table = table_df.div(table_df.sum(axis=1), axis=0).fillna(0.0)
     asv_niche_optima = (rel_table.T @ env_series.values) / rel_table.sum(axis=0).values.clip(min=1e-9)
 
-    # Niche distance matrix between ASVs
     niche_dist = squareform(pdist(asv_niche_optima.values.reshape(-1, 1), metric='euclidean'))
     niche_dm = DistanceMatrix(niche_dist, ids=common_asvs)
 
-    # Phylogenetic distance matrix between ASVs
     phylo_dm_all = tree.tip_tip_distances()
     phylo_df = pd.DataFrame(phylo_dm_all.data, index=phylo_dm_all.ids, columns=phylo_dm_all.ids)
     phylo_dist = phylo_df.loc[common_asvs, common_asvs].values
     phylo_dm = DistanceMatrix(phylo_dist, ids=common_asvs)
 
-    # Run Mantel Test
     r_stat, p_val, n_pairs = mantel(niche_dm, phylo_dm, permutations=permutations, method='pearson')
     r_stat_clean = round(float(r_stat), 4)
     p_val_clean = round(float(p_val), 4)
 
-    # Prepare scatter plot data (Phylogenetic Distance vs Niche Distance)
-    # Downsample points if ASV pairs > 2000 to keep HTML lightweight
     phylo_upper = phylo_dist[np.triu_indices_from(phylo_dist, k=1)]
     niche_upper = niche_dist[np.triu_indices_from(niche_dist, k=1)]
 
@@ -94,7 +88,6 @@ def check_phylogenetic_signal(
         x_pts = phylo_upper.round(4).tolist()
         y_pts = niche_upper.round(4).tolist()
 
-    # Determine signal status
     if p_val_clean < 0.05 and r_stat_clean > 0:
         signal_badge = "bg-success"
         signal_text = "SIGNIFICANT PHYLOGENETIC SIGNAL DETECTED"
